@@ -377,10 +377,9 @@ func (s *server) handleClient(client *client) {
 	messageSize := fmt.Sprintf("250-SIZE %d\r\n", sc.MaxSize)
 	pipelining := "250-PIPELINING\r\n"
 	advertiseTLS := "250-STARTTLS\r\n"
-	advertiseEnhancedStatusCodes := "250-ENHANCEDSTATUSCODES\r\n"
 	// The last line doesn't need \r\n since string will be printed as a new line.
 	// Also, Last line has no dash -
-	help := "250 HELP"
+	advertiseEnhancedStatusCodes := "250 ENHANCEDSTATUSCODES"
 
 	if sc.TLS.AlwaysOn {
 		tlsConfig, ok := s.tlsConfigStore.Load().(*tls.Config)
@@ -460,12 +459,7 @@ func (s *server) handleClient(client *client) {
 					messageSize,
 					pipelining,
 					advertiseTLS,
-					advertiseEnhancedStatusCodes,
-					help)
-
-			case cmdHELP.match(cmd):
-				quote := response.GetQuote()
-				client.sendResponse("214-OK\r\n", quote)
+					advertiseEnhancedStatusCodes)
 
 			case sc.XClientOn && cmdXCLIENT.match(cmd):
 				if toks := bytes.Split(input[8:], []byte{' '}); len(toks) > 0 {
