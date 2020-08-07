@@ -42,6 +42,7 @@ type Guerrilla interface {
 	Publish(topic Event, args ...interface{})
 	Unsubscribe(topic Event, handler interface{}) error
 	SetLogger(log.Logger)
+	GetActiveClientsCount() int
 }
 
 type guerrilla struct {
@@ -549,6 +550,14 @@ func (g *guerrilla) writePid() (err error) {
 		g.mainlog().Infof("pid_file (%s) written with pid:%v", g.Config.PidFile, pid)
 	}
 	return nil
+}
+
+func (g *guerrilla) GetActiveClientsCount() int {
+	count := 0
+	g.mapServers(func(server *server) {
+		count += server.GetActiveClientsCount()
+	})
+	return count
 }
 
 // CheckFileLimit checks the number of files we can open (works on OS'es that support the ulimit command)
